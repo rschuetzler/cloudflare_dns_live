@@ -1,0 +1,4 @@
+# DNS Management Portal - Educational Use Only
+# Disallow all crawling to protect student privacy and educational content
+User-agent: *
+Disallow: /
