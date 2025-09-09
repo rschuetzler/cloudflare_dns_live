@@ -86,6 +86,7 @@ defmodule CloudflareDnsWeb do
       import Phoenix.HTML
       # Core UI components
       import CloudflareDnsWeb.CoreComponents
+      import CloudflareDnsWeb.DNSComponents
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS

@@ -49,7 +49,8 @@ defmodule CloudflareDnsWeb.RecordLive do
     {:ok, socket}
   end
 
-  def handle_event("type_changed", %{"type" => type}, socket) do
+  def handle_event("type_changed", %{"record" => %{"type" => type}}, socket) do
+    # Handle record type change for dynamic UI updates
     {:noreply, assign(socket, :selected_type, type)}
   end
 
@@ -79,10 +80,14 @@ defmodule CloudflareDnsWeb.RecordLive do
       %{comment: "STUDENT", ttl: ttl}
     ) do
       {:ok, _record} ->
+        # Build full domain name for flash message
+        full_name = "#{params["name"]}.is404.net"
+        flash_message = "#{params["name"]} (#{params["type"]}) record #{full_name} successfully created"
+        
         DNSCache.invalidate_and_refresh()
         {:noreply,
          socket
-         |> put_flash(:info, "DNS record created successfully!")
+         |> put_flash(:success, flash_message)
          |> push_navigate(to: "/")}
 
       {:error, reason} ->
@@ -102,10 +107,14 @@ defmodule CloudflareDnsWeb.RecordLive do
       %{comment: record.comment, ttl: ttl}
     ) do
       {:ok, _record} ->
+        # Build full domain name for flash message
+        full_name = "#{params["name"]}.is404.net"
+        flash_message = "#{params["name"]} (#{params["type"]}) record #{full_name} successfully updated"
+        
         DNSCache.invalidate_and_refresh()
         {:noreply,
          socket
-         |> put_flash(:info, "DNS record updated successfully!")
+         |> put_flash(:success, flash_message)
          |> push_navigate(to: "/")}
 
       {:error, reason} ->
@@ -318,6 +327,8 @@ defmodule CloudflareDnsWeb.RecordLive do
         </div>
       </div>
     </div>
+    
+    <CloudflareDnsWeb.Layouts.flash_group flash={@flash} />
     """
   end
 

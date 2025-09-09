@@ -50,10 +50,14 @@ defmodule CloudflareDnsWeb.DashboardLive do
         if DNSValidator.can_modify_record?(record) do
           case CloudflareClient.delete_dns_record(id) do
             :ok ->
+              # Extract subdomain from full domain name for flash message
+              subdomain = String.replace_suffix(record.name, ".is404.net", "")
+              flash_message = "#{subdomain} (#{record.type}) record #{record.name} successfully deleted"
+              
               DNSCache.invalidate_and_refresh()
               {:noreply, 
                socket
-               |> put_flash(:info, "DNS record deleted successfully")
+               |> put_flash(:warning, flash_message)
                |> load_records()}
                
             {:error, reason} ->
@@ -120,18 +124,18 @@ defmodule CloudflareDnsWeb.DashboardLive do
       <!-- Search and Filters -->
       <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div class="mb-6">
-          <.form for={%{}} as={:search} phx-submit="search" class="flex gap-4 items-end">
+          <.form for={%{}} as={:search} phx-submit="search" class="flex gap-4 items-center">
             <div class="flex-1">
               <.input 
                 name="query" 
                 type="text" 
                 value={@search_query}
                 placeholder="Search records by name, content, or type..."
-                class="block w-full bg-white text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1"
+                class="block w-full bg-white text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 h-10"
               />
             </div>
             <div class="flex gap-2">
-              <.button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm border border-transparent">
+              <.button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm border border-transparent h-10">
                 <.icon name="hero-magnifying-glass" class="-ml-1 mr-2 h-4 w-4" />
                 Search
               </.button>
@@ -139,7 +143,7 @@ defmodule CloudflareDnsWeb.DashboardLive do
                 :if={@search_query != ""}
                 type="button" 
                 phx-click="clear_search" 
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md h-10"
               >
                 Clear
               </.button>
@@ -291,6 +295,8 @@ defmodule CloudflareDnsWeb.DashboardLive do
         <% end %>
       </div>
     </div>
+    
+    <CloudflareDnsWeb.Layouts.flash_group flash={@flash} />
     """
   end
 end
