@@ -1,6 +1,5 @@
 defmodule CloudflareDnsWeb.LoginLive do
   use CloudflareDnsWeb, :live_view
-  alias CloudflareDnsWeb.Auth
 
   def mount(_params, session, socket) do
     # If already authenticated, redirect to dashboard
@@ -9,6 +8,10 @@ defmodule CloudflareDnsWeb.LoginLive do
     else
       {:ok, assign(socket, :form, to_form(%{"password" => ""}, as: :login))}
     end
+  end
+
+  defp zone_domain do
+    Application.get_env(:cloudflare_dns, :cloudflare_domain)
   end
 
   def handle_event("submit", %{"login" => %{"password" => _password}}, socket) do
@@ -30,9 +33,9 @@ defmodule CloudflareDnsWeb.LoginLive do
         </div>
         <.form for={@form} action="/login" method="post" class="mt-8 space-y-6">
           <div>
-            <.input 
-              field={@form[:password]} 
-              type="password" 
+            <.input
+              field={@form[:password]}
+              type="password"
               placeholder="Access Password"
               autocomplete="current-password"
               required
@@ -40,16 +43,15 @@ defmodule CloudflareDnsWeb.LoginLive do
             />
           </div>
           <div>
-            <.button 
-              type="submit" 
+            <.button
+              type="submit"
               class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              <.icon name="hero-lock-closed" class="-ml-1 mr-2 h-4 w-4" />
-              Sign In
+              <.icon name="hero-lock-closed" class="-ml-1 mr-2 h-4 w-4" /> Sign In
             </.button>
           </div>
         </.form>
-        
+
         <div class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
           <div class="flex">
             <div class="flex-shrink-0">
@@ -60,7 +62,9 @@ defmodule CloudflareDnsWeb.LoginLive do
                 Welcome to DNS Learning Portal
               </h3>
               <div class="mt-2 text-sm text-blue-700">
-                <p>This portal allows students to create and manage DNS records for the is404.net domain.</p>
+                <p>
+                  This portal allows students to create and manage DNS records for the {zone_domain()} domain.
+                </p>
                 <ul class="mt-1 list-disc list-inside">
                   <li>Create A records to point subdomains to IP addresses</li>
                   <li>Create CNAME records to create domain aliases</li>

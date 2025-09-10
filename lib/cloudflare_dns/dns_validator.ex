@@ -7,7 +7,6 @@ defmodule CloudflareDns.DNSValidator do
 
   @allowed_types ["A", "CNAME"]
   @forbidden_names ["www", "@", ""]
-  @zone_domain "is404.net"
 
   @doc """
   Validates a DNS record for creation or update.
@@ -15,11 +14,11 @@ defmodule CloudflareDns.DNSValidator do
   @spec validate_record(map()) :: {:ok, map()} | {:error, [String.t()]}
   def validate_record(attrs) do
     errors = []
-    
+
     errors = validate_type(attrs, errors)
     errors = validate_name(attrs, errors)
     errors = validate_content(attrs, errors)
-    
+
     case errors do
       [] -> {:ok, sanitize_attrs(attrs)}
       _ -> {:error, errors}
@@ -59,7 +58,7 @@ defmodule CloudflareDns.DNSValidator do
   def get_record_info("CNAME") do
     %{
       type: "CNAME",
-      name: "Canonical Name Record", 
+      name: "Canonical Name Record",
       description: "Maps a domain name to another domain name (alias)",
       example_content: "example.com",
       use_case: "Use CNAME records to create an alias that points to another domain"
@@ -78,16 +77,20 @@ defmodule CloudflareDns.DNSValidator do
 
   # Private validation functions
 
+  defp zone_domain do
+    Application.get_env(:cloudflare_dns, :cloudflare_domain)
+  end
+
   defp validate_type(attrs, errors) do
     type = Map.get(attrs, "type") || Map.get(attrs, :type)
-    
+
     cond do
       is_nil(type) or type == "" ->
         ["Record type is required" | errors]
-        
+
       type not in @allowed_types ->
         ["Record type must be one of: #{Enum.join(@allowed_types, ", ")}" | errors]
-        
+
       true ->
         errors
     end
@@ -96,23 +99,23 @@ defmodule CloudflareDns.DNSValidator do
   defp validate_name(attrs, errors) do
     name = Map.get(attrs, "name") || Map.get(attrs, :name) || ""
     normalized_name = String.trim(String.downcase(name))
-    
+
     cond do
       normalized_name == "" ->
         ["Domain name is required" | errors]
-        
+
       normalized_name in @forbidden_names ->
         ["Cannot create records for www, @ (root domain), or empty names" | errors]
-        
+
       String.starts_with?(normalized_name, "*.") ->
         ["Wildcard domains are not allowed" | errors]
-        
+
       String.contains?(normalized_name, " ") ->
         ["Domain names cannot contain spaces" | errors]
-        
+
       not valid_subdomain_format?(normalized_name) ->
         ["Invalid subdomain format. Use only letters, numbers, and hyphens" | errors]
-        
+
       true ->
         errors
     end
@@ -121,17 +124,17 @@ defmodule CloudflareDns.DNSValidator do
   defp validate_content(attrs, errors) do
     content = Map.get(attrs, "content") || Map.get(attrs, :content) || ""
     type = Map.get(attrs, "type") || Map.get(attrs, :type)
-    
+
     cond do
       String.trim(content) == "" ->
         ["Content is required" | errors]
-        
+
       type == "A" and not valid_ipv4?(content) ->
         ["A records must contain a valid IPv4 address (e.g., 192.0.2.1)" | errors]
-        
+
       type == "CNAME" and not valid_domain?(content) ->
         ["CNAME records must contain a valid domain name (e.g., example.com)" | errors]
-        
+
       true ->
         errors
     end
@@ -139,8 +142,8 @@ defmodule CloudflareDns.DNSValidator do
 
   defp valid_subdomain_format?(name) do
     # Remove the zone domain if present
-    subdomain = String.replace_suffix(name, ".#{@zone_domain}", "")
-    
+    subdomain = String.replace_suffix(name, ".#{zone_domain()}", "")
+
     # Check if it's a valid subdomain format
     String.match?(subdomain, ~r/^[a-z0-9]([a-z0-9\-]*[a-z0-9])?$/i)
   end
@@ -155,21 +158,22 @@ defmodule CloudflareDns.DNSValidator do
   defp valid_domain?(domain) do
     # Basic domain validation - could be enhanced
     String.match?(domain, ~r/^[a-z0-9]([a-z0-9\-\.]*[a-z0-9])?$/i) and
-    String.contains?(domain, ".") and
-    not String.starts_with?(domain, ".") and
-    not String.ends_with?(domain, ".")
+      String.contains?(domain, ".") and
+      not String.starts_with?(domain, ".") and
+      not String.ends_with?(domain, ".")
   end
 
   defp sanitize_attrs(attrs) do
     name = Map.get(attrs, "name") || Map.get(attrs, :name, "")
-    
+
     # Ensure name includes the zone domain if not already present
-    full_name = if String.ends_with?(name, ".#{@zone_domain}") do
-      name
-    else
-      "#{name}.#{@zone_domain}"
-    end
-    
+    full_name =
+      if String.ends_with?(name, ".#{zone_domain()}") do
+        name
+      else
+        "#{name}.#{zone_domain()}"
+      end
+
     attrs
     |> Map.put("name", full_name)
     |> Map.put(:name, full_name)

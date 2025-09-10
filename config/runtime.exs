@@ -38,6 +38,16 @@ if config_env() == :prod do
 
   config :cloudflare_dns, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
+  # Configure Cloudflare domain
+  cloudflare_domain =
+    System.get_env("CLOUDFLARE_DOMAIN") ||
+      raise """
+      environment variable CLOUDFLARE_DOMAIN is missing.
+      You need to specify the domain name for your Cloudflare zone.
+      """
+
+  config :cloudflare_dns, :cloudflare_domain, cloudflare_domain
+
   config :cloudflare_dns, CloudflareDnsWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
     http: [

@@ -22,3 +22,6 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Configure Cloudflare domain for test
+config :cloudflare_dns, :cloudflare_domain, "is404.net"

@@ -9,7 +9,7 @@ defmodule CloudflareDns.CloudflareClient do
     @moduledoc """
     Represents a Cloudflare DNS record.
     """
-    
+
     defstruct [
       :id,
       :type,
@@ -25,18 +25,18 @@ defmodule CloudflareDns.CloudflareClient do
     ]
 
     @type t :: %__MODULE__{
-      id: String.t(),
-      type: String.t(),
-      name: String.t(),
-      content: String.t(),
-      ttl: integer(),
-      proxied: boolean(),
-      zone_id: String.t(),
-      zone_name: String.t(),
-      comment: String.t() | nil,
-      created_on: String.t(),
-      modified_on: String.t()
-    }
+            id: String.t(),
+            type: String.t(),
+            name: String.t(),
+            content: String.t(),
+            ttl: integer(),
+            proxied: boolean(),
+            zone_id: String.t(),
+            zone_name: String.t(),
+            comment: String.t() | nil,
+            created_on: String.t(),
+            modified_on: String.t()
+          }
   end
 
   @doc """
@@ -48,7 +48,7 @@ defmodule CloudflareDns.CloudflareClient do
     token = get_token()
 
     url = "#{@base_url}/zones/#{zone_id}/dns_records"
-    
+
     headers = [
       {"Authorization", "Bearer #{token}"},
       {"Content-Type", "application/json"}
@@ -70,13 +70,14 @@ defmodule CloudflareDns.CloudflareClient do
   @doc """
   Creates a new DNS record.
   """
-  @spec create_dns_record(String.t(), String.t(), String.t(), map()) :: {:ok, DNSRecord.t()} | {:error, any()}
+  @spec create_dns_record(String.t(), String.t(), String.t(), map()) ::
+          {:ok, DNSRecord.t()} | {:error, any()}
   def create_dns_record(type, name, content, opts \\ %{}) do
     zone_id = get_zone_id()
     token = get_token()
 
     url = "#{@base_url}/zones/#{zone_id}/dns_records"
-    
+
     headers = [
       {"Authorization", "Bearer #{token}"},
       {"Content-Type", "application/json"}
@@ -105,13 +106,14 @@ defmodule CloudflareDns.CloudflareClient do
   @doc """
   Updates an existing DNS record.
   """
-  @spec update_dns_record(String.t(), String.t(), String.t(), String.t(), map()) :: {:ok, DNSRecord.t()} | {:error, any()}
+  @spec update_dns_record(String.t(), String.t(), String.t(), String.t(), map()) ::
+          {:ok, DNSRecord.t()} | {:error, any()}
   def update_dns_record(record_id, type, name, content, opts \\ %{}) do
     zone_id = get_zone_id()
     token = get_token()
 
     url = "#{@base_url}/zones/#{zone_id}/dns_records/#{record_id}"
-    
+
     headers = [
       {"Authorization", "Bearer #{token}"},
       {"Content-Type", "application/json"}
@@ -146,7 +148,7 @@ defmodule CloudflareDns.CloudflareClient do
     token = get_token()
 
     url = "#{@base_url}/zones/#{zone_id}/dns_records/#{record_id}"
-    
+
     headers = [
       {"Authorization", "Bearer #{token}"},
       {"Content-Type", "application/json"}

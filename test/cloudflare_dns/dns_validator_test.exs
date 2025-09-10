@@ -16,7 +16,7 @@ defmodule CloudflareDns.DNSValidatorTest do
 
     test "validates a valid CNAME record" do
       attrs = %{
-        "type" => "CNAME", 
+        "type" => "CNAME",
         "name" => "alias",
         "content" => "example.com"
       }
@@ -28,7 +28,7 @@ defmodule CloudflareDns.DNSValidatorTest do
     test "rejects invalid record types" do
       attrs = %{
         "type" => "MX",
-        "name" => "test", 
+        "name" => "test",
         "content" => "10 mail.example.com"
       }
 
@@ -49,7 +49,7 @@ defmodule CloudflareDns.DNSValidatorTest do
 
     test "rejects wildcard domains" do
       attrs = %{
-        "type" => "A", 
+        "type" => "A",
         "name" => "*.test",
         "content" => "192.0.2.1"
       }
@@ -72,7 +72,7 @@ defmodule CloudflareDns.DNSValidatorTest do
     test "rejects invalid domain for CNAME records" do
       attrs = %{
         "type" => "CNAME",
-        "name" => "test", 
+        "name" => "test",
         "content" => "not_a_domain"
       }
 

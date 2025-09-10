@@ -6,7 +6,7 @@ defmodule CloudflareDnsWeb.DNSComponents do
 
   import CloudflareDnsWeb.CoreComponents, only: [icon: 1, hide: 1, hide: 2, show: 1]
   use Gettext, backend: CloudflareDnsWeb.Gettext
-  
+
   alias Phoenix.LiveView.JS
 
   @doc """
@@ -24,7 +24,11 @@ defmodule CloudflareDnsWeb.DNSComponents do
   attr :id, :string, doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
-  attr :kind, :atom, values: [:success, :warning, :error, :info], doc: "used for styling and flash lookup"
+
+  attr :kind, :atom,
+    values: [:success, :warning, :error, :info],
+    doc: "used for styling and flash lookup"
+
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
 
   slot :inner_block, doc: "the optional inner block that renders the flash message"
@@ -44,7 +48,7 @@ defmodule CloudflareDnsWeb.DNSComponents do
       <div class={[
         "alert w-80 sm:w-96 max-w-80 sm:max-w-96 text-wrap",
         @kind == :success && "alert-success",
-        @kind == :warning && "alert-warning", 
+        @kind == :warning && "alert-warning",
         @kind == :error && "alert-error",
         @kind == :info && "alert-info"
       ]}>
@@ -109,5 +113,4 @@ defmodule CloudflareDnsWeb.DNSComponents do
     </div>
     """
   end
-
 end

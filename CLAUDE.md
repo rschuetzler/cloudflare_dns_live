@@ -68,7 +68,8 @@ This is an educational Phoenix LiveView application for DNS management using the
 
 Required environment variables:
 - `CLOUDFLARE_TOKEN`: API token with Zone:Read and Zone:DNS:Edit permissions
-- `CLOUDFLARE_ZONE`: Zone ID for the target domain (hardcoded to is404.net)
+- `CLOUDFLARE_ZONE`: Zone ID for the target domain
+- `CLOUDFLARE_DOMAIN`: Domain name for the Cloudflare zone (e.g., "example.com")
 - `ACCESS_PASSWORD`: Password for student authentication
 - `SECRET_KEY_BASE`: Phoenix secret key (generate with `mix phx.gen.secret`)
 

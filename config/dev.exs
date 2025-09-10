@@ -76,3 +76,6 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Configure Cloudflare domain for development
+config :cloudflare_dns, :cloudflare_domain, System.get_env("CLOUDFLARE_DOMAIN", "is404.net")

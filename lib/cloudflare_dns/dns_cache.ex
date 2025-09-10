@@ -2,7 +2,7 @@ defmodule CloudflareDns.DNSCache do
   @moduledoc """
   ETS-based caching layer for DNS records with automatic refresh and PubSub broadcasting.
   """
-  
+
   use GenServer
   alias CloudflareDns.CloudflareClient
   alias Phoenix.PubSub
@@ -51,15 +51,17 @@ defmodule CloudflareDns.DNSCache do
   @spec search_records(String.t()) :: [CloudflareClient.DNSRecord.t()]
   def search_records(query) when is_binary(query) do
     normalized_query = String.downcase(String.trim(query))
-    
+
     case normalized_query do
-      "" -> get_all_records()
+      "" ->
+        get_all_records()
+
       _ ->
         get_all_records()
         |> Enum.filter(fn record ->
           String.contains?(String.downcase(record.name), normalized_query) or
-          String.contains?(String.downcase(record.content), normalized_query) or
-          String.contains?(String.downcase(record.type), normalized_query)
+            String.contains?(String.downcase(record.content), normalized_query) or
+            String.contains?(String.downcase(record.type), normalized_query)
         end)
     end
   end
@@ -85,13 +87,13 @@ defmodule CloudflareDns.DNSCache do
   @impl true
   def init(_opts) do
     table = :ets.new(@table_name, [:named_table, :public, read_concurrency: true])
-    
+
     # Initial load
     load_records(table)
-    
+
     # Schedule periodic refresh
     timer_ref = Process.send_after(self(), :refresh, @refresh_interval)
-    
+
     {:ok, %CacheState{table: table, timer_ref: timer_ref, last_update: DateTime.utc_now()}}
   end
 
@@ -106,23 +108,31 @@ defmodule CloudflareDns.DNSCache do
     # Clear cache and reload immediately
     :ets.delete_all_objects(state.table)
     load_records(state.table)
-    
+
     # Broadcast update to all connected clients
-    PubSub.broadcast(CloudflareDns.PubSub, @pubsub_topic, {:dns_records_updated, get_all_records()})
-    
+    PubSub.broadcast(
+      CloudflareDns.PubSub,
+      @pubsub_topic,
+      {:dns_records_updated, get_all_records()}
+    )
+
     {:noreply, %{state | last_update: DateTime.utc_now()}}
   end
 
   @impl true
   def handle_info(:refresh, state) do
     load_records(state.table)
-    
+
     # Schedule next refresh
     timer_ref = Process.send_after(self(), :refresh, @refresh_interval)
-    
+
     # Broadcast update to all connected clients
-    PubSub.broadcast(CloudflareDns.PubSub, @pubsub_topic, {:dns_records_updated, get_all_records()})
-    
+    PubSub.broadcast(
+      CloudflareDns.PubSub,
+      @pubsub_topic,
+      {:dns_records_updated, get_all_records()}
+    )
+
     {:noreply, %{state | timer_ref: timer_ref, last_update: DateTime.utc_now()}}
   end
 
@@ -132,7 +142,7 @@ defmodule CloudflareDns.DNSCache do
     case CloudflareClient.list_dns_records() do
       {:ok, records} ->
         :ets.insert(table, {:records, records})
-        
+
       {:error, reason} ->
         require Logger
         Logger.error("Failed to load DNS records: #{inspect(reason)}")

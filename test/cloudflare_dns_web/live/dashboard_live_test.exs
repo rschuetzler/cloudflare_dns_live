@@ -17,7 +17,7 @@ defmodule CloudflareDnsWeb.DashboardLiveTest do
           comment: "STUDENT"
         },
         %DNSRecord{
-          id: "2", 
+          id: "2",
           type: "CNAME",
           name: "alias.is404.net",
           content: "example.com",
@@ -40,25 +40,25 @@ defmodule CloudflareDnsWeb.DashboardLiveTest do
   setup do
     # Mock the DNS cache module for tests
     Application.put_env(:cloudflare_dns, :dns_cache_module, MockDNSCache)
-    
-    conn = 
+
+    conn =
       build_conn()
       |> init_test_session(%{authenticated: true})
-    
+
     {:ok, conn: conn}
   end
 
   test "renders dashboard with DNS records", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
-    
+
     assert has_element?(view, "h1", "DNS Management Portal")
-    assert has_element?(view, "td", "test.is404.net") 
+    assert has_element?(view, "td", "test.is404.net")
     assert has_element?(view, "td", "alias.is404.net")
   end
 
   test "shows correct record types and statuses", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
-    
+
     # Check for A record badge
     assert has_element?(view, "span", "A")
     # Check for CNAME record badge  
@@ -71,12 +71,12 @@ defmodule CloudflareDnsWeb.DashboardLiveTest do
 
   test "search functionality works", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
-    
+
     # Search for "test"
     view
     |> form("form", search: %{query: "test"})
     |> render_submit()
-    
+
     # Should still show the test record
     assert has_element?(view, "td", "test.is404.net")
     # Should not show the alias record
@@ -85,7 +85,7 @@ defmodule CloudflareDnsWeb.DashboardLiveTest do
 
   test "shows protected record actions correctly", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
-    
+
     # Protected record should show "Protected" instead of edit/delete buttons
     protected_row = element(view, "tr", "alias.is404.net")
     assert has_element?(protected_row, "span", "Protected")
@@ -95,9 +95,9 @@ defmodule CloudflareDnsWeb.DashboardLiveTest do
 
   test "shows student record actions correctly", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
-    
+
     # Student record should show edit and delete buttons
-    student_row = element(view, "tr", "test.is404.net") 
+    student_row = element(view, "tr", "test.is404.net")
     assert has_element?(student_row, "a", "Edit")
     assert has_element?(student_row, "button", "Delete")
   end
@@ -105,7 +105,7 @@ defmodule CloudflareDnsWeb.DashboardLiveTest do
   test "redirects to login when not authenticated", %{conn: _conn} do
     # Create conn without authentication
     unauth_conn = build_conn()
-    
+
     {:error, {:redirect, %{to: "/login"}}} = live(unauth_conn, "/")
   end
 end

@@ -2,7 +2,7 @@ defmodule CloudflareDnsWeb.Auth do
   @moduledoc """
   Authentication module for password-based access control.
   """
-  
+
   import Plug.Conn
   import Phoenix.Controller
 
@@ -64,7 +64,7 @@ defmodule CloudflareDnsWeb.Auth do
   # Private functions
 
   defp get_access_password do
-    System.get_env("ACCESS_PASSWORD") || 
+    System.get_env("ACCESS_PASSWORD") ||
       raise "ACCESS_PASSWORD environment variable not set"
   end
 
