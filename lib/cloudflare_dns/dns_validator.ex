@@ -27,10 +27,11 @@ defmodule CloudflareDns.DNSValidator do
 
   @doc """
   Validates if a record can be edited or deleted based on its comment.
+  Only records created by students (marked with "STUDENT" comment) can be modified.
   """
   @spec can_modify_record?(DNSRecord.t()) :: boolean()
   def can_modify_record?(%DNSRecord{comment: comment}) do
-    comment != "KEEP"
+    comment == "STUDENT"
   end
 
   @doc """
