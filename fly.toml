@@ -11,7 +11,7 @@ kill_signal = 'SIGTERM'
   dockerfile = "Dockerfile"
 
 [env]
-  PHX_HOST = 'cloudflare-dns-live.fly.dev'
+  PHX_HOST = 'dns.is404.net'
   PORT = '4000'
 
 [http_service]
