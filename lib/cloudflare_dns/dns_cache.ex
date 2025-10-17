@@ -88,8 +88,9 @@ defmodule CloudflareDns.DNSCache do
   def init(_opts) do
     table = :ets.new(@table_name, [:named_table, :public, read_concurrency: true])
 
-    # Initial load
-    load_records(table)
+    # Defer initial load to allow the application to fully start
+    # This prevents issues during build/release when env vars aren't available
+    Process.send_after(self(), :initial_load, 100)
 
     # Schedule periodic refresh
     timer_ref = Process.send_after(self(), :refresh, @refresh_interval)
@@ -116,6 +117,12 @@ defmodule CloudflareDns.DNSCache do
       {:dns_records_updated, get_all_records()}
     )
 
+    {:noreply, %{state | last_update: DateTime.utc_now()}}
+  end
+
+  @impl true
+  def handle_info(:initial_load, state) do
+    load_records(state.table)
     {:noreply, %{state | last_update: DateTime.utc_now()}}
   end
 
