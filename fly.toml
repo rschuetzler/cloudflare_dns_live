@@ -8,13 +8,14 @@ primary_region = 'lax'
 kill_signal = 'SIGTERM'
 
 [build]
+  dockerfile = "Dockerfile"
 
 [env]
   PHX_HOST = 'cloudflare-dns-live.fly.dev'
-  PORT = '8080'
+  PORT = '4000'
 
 [http_service]
-  internal_port = 8080
+  internal_port = 4000
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
