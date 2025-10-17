@@ -100,4 +100,4 @@ ENV PHX_SERVER="true"
 # Expose the port
 EXPOSE 4000
 
-CMD ["/app/bin/server"]
+CMD ["/app/bin/cloudflare_dns", "start"]
