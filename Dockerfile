@@ -7,7 +7,7 @@
 # This file is based on the official Elixir Dockerfile pattern for Phoenix apps.
 
 ARG ELIXIR_VERSION=1.18
-ARG DEBIAN_VERSION=bookworm-20250227-slim
+ARG DEBIAN_VERSION=bookworm-20250929-slim
 
 FROM elixir:${ELIXIR_VERSION} as builder
 
