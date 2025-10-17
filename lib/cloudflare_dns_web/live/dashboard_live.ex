@@ -122,6 +122,7 @@ defmodule CloudflareDnsWeb.DashboardLive do
                 <.icon name="hero-plus" class="-ml-1 mr-2 h-4 w-4" /> Add Record
               </.link>
               <form method="post" action="/logout" class="inline">
+                <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
                 <button
                   type="submit"
                   class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
