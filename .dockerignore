@@ -1,0 +1,56 @@
+# Git files
+.git
+.gitignore
+
+# Mix artifacts
+/_build
+/deps
+*.ez
+
+# Generated on crash by the VM
+erl_crash.dump
+
+# Static artifacts
+/priv/static
+
+# Elixir LS
+.elixir_ls
+
+# Node artifacts
+/assets/node_modules
+node_modules
+
+# Editor and OS files
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.*
+
+# Test files
+/test
+
+# Coverage reports
+/cover
+
+# Docker files
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Documentation
+*.md
+CLAUDE.md
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Temporary files
+/tmp
+*.log
