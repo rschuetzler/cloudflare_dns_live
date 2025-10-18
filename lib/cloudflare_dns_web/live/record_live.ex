@@ -194,7 +194,7 @@ defmodule CloudflareDnsWeb.RecordLive do
               <div class="px-6 py-4">
                 <.form for={@form} phx-submit="save" phx-change="validate">
                   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div>
+                    <div class="[\&_div.fieldset]:mb-0">
                       <.input
                         field={@form[:type]}
                         type="select"
@@ -205,9 +205,10 @@ defmodule CloudflareDnsWeb.RecordLive do
                         ]}
                         phx-change="type_changed"
                         required
+                        class="w-full select-with-indicator appearance-none rounded-md border border-gray-300 bg-white text-gray-900 pl-4 pr-12 py-2.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-2 focus:ring-offset-0"
                       />
                     </div>
-                    <div>
+                    <div class="[\&_div.fieldset]:mb-0">
                       <.input
                         field={@form[:ttl]}
                         type="select"
@@ -220,6 +221,7 @@ defmodule CloudflareDnsWeb.RecordLive do
                           {"1 hour", "3600"},
                           {"24 hours", "86400"}
                         ]}
+                        class="w-full select-with-indicator appearance-none rounded-md border border-gray-300 bg-white text-gray-900 pl-4 pr-12 py-2.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-2 focus:ring-offset-0"
                       />
                     </div>
                   </div>
@@ -228,14 +230,14 @@ defmodule CloudflareDnsWeb.RecordLive do
                     <label class="block text-sm font-medium text-gray-900 mb-2">
                       Subdomain Name <span class="text-red-500">*</span>
                     </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
+                    <div class="mt-1 flex rounded-md shadow-sm [\&_div.fieldset]:mb-0 [\&_div.fieldset]:flex-1 [\&_div.fieldset>label]:flex [\&_div.fieldset>label]:w-full [\&_div.fieldset>label]:items-stretch">
                       <.input
                         field={@form[:name]}
                         type="text"
                         placeholder="Enter subdomain (e.g., 'mysite')"
-                        class="flex-1 rounded-l-md border border-r-0 border-gray-300 bg-white text-gray-900 placeholder-gray-500 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1"
+                        class="w-full rounded-l-md border border-r-0 border-gray-300 bg-white text-gray-900 placeholder-gray-500 pl-4 pr-6 py-2.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-2 focus:ring-offset-0 sm:min-w-[18rem] md:min-w-[22rem] lg:min-w-[26rem]"
                       />
-                      <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-900 text-sm font-medium">
+                      <span class="inline-flex items-center px-4 py-2 rounded-r-md border border-l-0 border-gray-300 bg-gray-100 text-gray-900 text-sm font-medium leading-snug tracking-tight">
                         .{zone_domain()}
                       </span>
                     </div>
@@ -249,7 +251,7 @@ defmodule CloudflareDnsWeb.RecordLive do
                       field={@form[:content]}
                       type="text"
                       placeholder={get_content_placeholder(@selected_type)}
-                      class="block w-full bg-white text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1"
+                      class="block w-full bg-white text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md px-4 py-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-2 focus:ring-offset-0"
                       required
                     />
                   </div>

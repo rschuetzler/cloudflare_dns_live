@@ -138,28 +138,34 @@ defmodule CloudflareDnsWeb.DashboardLive do
     <!-- Search and Filters -->
       <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div class="mb-6">
-          <.form for={%{}} as={:search} phx-submit="search" class="flex gap-4 items-center">
-            <div class="flex-1">
+          <.form
+            for={%{}}
+            as={:search}
+            phx-submit="search"
+            id="records-search-form"
+            class="flex flex-col gap-3 sm:flex-row sm:items-stretch"
+          >
+            <div class="flex-1 [\&_div.fieldset]:mb-0 [\&_div.fieldset]:w-full [\&_div.fieldset>label]:flex [\&_div.fieldset>label]:w-full [\&_div.fieldset>label]:items-center">
               <.input
                 name="query"
                 type="text"
                 value={@search_query}
                 placeholder="Search records by name, content, or type..."
-                class="block w-full bg-white text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 h-10"
+                class="w-full bg-white text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md px-4 py-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-2 focus:ring-offset-0 transition"
               />
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 items-stretch">
               <.button
                 type="submit"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm border border-transparent h-10"
+                class="flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold tracking-tight rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm border border-transparent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
               >
-                <.icon name="hero-magnifying-glass" class="-ml-1 mr-2 h-4 w-4" /> Search
+                <.icon name="hero-magnifying-glass" class="h-5 w-5" /> Search
               </.button>
               <.button
                 :if={@search_query != ""}
                 type="button"
                 phx-click="clear_search"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md h-10"
+                class="flex items-center justify-center px-5 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
               >
                 Clear
               </.button>
