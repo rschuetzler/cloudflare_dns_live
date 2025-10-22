@@ -43,21 +43,45 @@ defmodule CloudflareDns.CloudflareClient do
   Lists all DNS records for the configured zone.
   """
   @spec list_dns_records() :: {:ok, [DNSRecord.t()]} | {:error, any()}
+  @records_per_page 100
+
   def list_dns_records do
     zone_id = get_zone_id()
     token = get_token()
-
-    url = "#{@base_url}/zones/#{zone_id}/dns_records"
 
     headers = [
       {"Authorization", "Bearer #{token}"},
       {"Content-Type", "application/json"}
     ]
 
-    case Req.get(url, headers: headers) do
-      {:ok, %{status: 200, body: %{"success" => true, "result" => records}}} ->
-        dns_records = Enum.map(records, &map_to_dns_record/1)
+    case fetch_all_dns_records(zone_id, headers) do
+      {:ok, record_pages} ->
+        dns_records =
+          record_pages
+          |> Enum.reverse()
+          |> Enum.concat()
+
         {:ok, dns_records}
+
+      {:error, _reason} = error ->
+        error
+    end
+  end
+
+  defp fetch_all_dns_records(zone_id, headers, page \\ 1, acc \\ []) do
+    url = "#{@base_url}/zones/#{zone_id}/dns_records"
+    params = [page: page, per_page: @records_per_page]
+
+    case Req.get(url, headers: headers, params: params) do
+      {:ok, %{status: 200, body: %{"success" => true, "result" => records} = body}} ->
+        mapped_records = Enum.map(records, &map_to_dns_record/1)
+        new_acc = [mapped_records | acc]
+
+        if has_more_pages?(body, page) do
+          fetch_all_dns_records(zone_id, headers, page + 1, new_acc)
+        else
+          {:ok, new_acc}
+        end
 
       {:ok, %{status: status, body: body}} ->
         {:error, "API request failed with status #{status}: #{inspect(body)}"}
@@ -66,6 +90,18 @@ defmodule CloudflareDns.CloudflareClient do
         {:error, "HTTP request failed: #{inspect(reason)}"}
     end
   end
+
+  defp has_more_pages?(%{"result_info" => %{"total_pages" => total_pages}} = _body, page)
+       when is_integer(total_pages) do
+    page < total_pages
+  end
+
+  defp has_more_pages?(%{"result_info" => %{"count" => count, "per_page" => per_page}}, _page)
+       when is_integer(count) and is_integer(per_page) do
+    count == per_page
+  end
+
+  defp has_more_pages?(_body, _page), do: false
 
   @doc """
   Creates a new DNS record.
