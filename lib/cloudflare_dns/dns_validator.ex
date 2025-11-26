@@ -123,11 +123,11 @@ defmodule CloudflareDns.DNSValidator do
   end
 
   defp validate_content(attrs, errors) do
-    content = Map.get(attrs, "content") || Map.get(attrs, :content) || ""
+    content = String.trim(Map.get(attrs, "content") || Map.get(attrs, :content) || "")
     type = Map.get(attrs, "type") || Map.get(attrs, :type)
 
     cond do
-      String.trim(content) == "" ->
+      content == "" ->
         ["Content is required" | errors]
 
       type == "A" and not valid_ipv4?(content) ->
@@ -161,7 +161,8 @@ defmodule CloudflareDns.DNSValidator do
     String.match?(domain, ~r/^[a-z0-9]([a-z0-9\-\.]*[a-z0-9])?$/i) and
       String.contains?(domain, ".") and
       not String.starts_with?(domain, ".") and
-      not String.ends_with?(domain, ".")
+      not String.ends_with?(domain, ".") and
+      not String.contains?(domain, "/")
   end
 
   defp sanitize_attrs(attrs) do

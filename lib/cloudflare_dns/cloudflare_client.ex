@@ -2,6 +2,7 @@ defmodule CloudflareDns.CloudflareClient do
   @moduledoc """
   Client for interacting with the Cloudflare API.
   """
+  require Logger
 
   @base_url "https://api.cloudflare.com/client/v4"
 
@@ -129,7 +130,9 @@ defmodule CloudflareDns.CloudflareClient do
 
     case Req.post(url, headers: headers, json: body) do
       {:ok, %{status: 200, body: %{"success" => true, "result" => record}}} ->
-        {:ok, map_to_dns_record(record)}
+        dns_record = map_to_dns_record(record)
+        Logger.info("DNS record created: type=#{type}, name=#{name}, content=#{content}")
+        {:ok, dns_record}
 
       {:ok, %{status: status, body: body}} ->
         {:error, "API request failed with status #{status}: #{inspect(body)}"}
@@ -165,7 +168,9 @@ defmodule CloudflareDns.CloudflareClient do
 
     case Req.patch(url, headers: headers, json: body) do
       {:ok, %{status: 200, body: %{"success" => true, "result" => record}}} ->
-        {:ok, map_to_dns_record(record)}
+        dns_record = map_to_dns_record(record)
+        Logger.info("DNS record updated: id=#{record_id}, type=#{type}, name=#{name}, content=#{content}")
+        {:ok, dns_record}
 
       {:ok, %{status: status, body: body}} ->
         {:error, "API request failed with status #{status}: #{inspect(body)}"}
@@ -177,9 +182,13 @@ defmodule CloudflareDns.CloudflareClient do
 
   @doc """
   Deletes a DNS record.
+
+  ## Options
+  - `:name` - The record name (for logging purposes)
+  - `:type` - The record type (for logging purposes)
   """
-  @spec delete_dns_record(String.t()) :: :ok | {:error, any()}
-  def delete_dns_record(record_id) do
+  @spec delete_dns_record(String.t(), map()) :: :ok | {:error, any()}
+  def delete_dns_record(record_id, opts \\ %{}) do
     zone_id = get_zone_id()
     token = get_token()
 
@@ -192,6 +201,8 @@ defmodule CloudflareDns.CloudflareClient do
 
     case Req.delete(url, headers: headers) do
       {:ok, %{status: 200, body: %{"success" => true}}} ->
+        log_message = build_delete_log_message(record_id, opts)
+        Logger.info(log_message)
         :ok
 
       {:ok, %{status: status, body: body}} ->
@@ -203,6 +214,17 @@ defmodule CloudflareDns.CloudflareClient do
   end
 
   # Private functions
+
+  defp build_delete_log_message(record_id, opts) do
+    base = "DNS record deleted: id=#{record_id}"
+
+    case {Map.get(opts, :name), Map.get(opts, :type)} do
+      {nil, nil} -> base
+      {name, nil} -> "#{base}, name=#{name}"
+      {nil, type} -> "#{base}, type=#{type}"
+      {name, type} -> "#{base}, type=#{type}, name=#{name}"
+    end
+  end
 
   defp get_token do
     System.get_env("CLOUDFLARE_TOKEN") || raise "CLOUDFLARE_TOKEN environment variable not set"

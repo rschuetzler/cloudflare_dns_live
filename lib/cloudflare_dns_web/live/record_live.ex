@@ -151,7 +151,7 @@ defmodule CloudflareDnsWeb.RecordLive do
     # Add errors to the form data if any
     form_data =
       if errors != [] do
-        Map.put(attrs, :errors, errors)
+        Map.put(attrs, "errors", errors)
       else
         attrs
       end

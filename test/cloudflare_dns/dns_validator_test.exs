@@ -79,6 +79,28 @@ defmodule CloudflareDns.DNSValidatorTest do
       assert {:error, errors} = DNSValidator.validate_record(attrs)
       assert "CNAME records must contain a valid domain name (e.g., example.com)" in errors
     end
+
+    test "rejects CNAME domains with trailing slashes" do
+      attrs = %{
+        "type" => "CNAME",
+        "name" => "test",
+        "content" => "example.com/"
+      }
+
+      assert {:error, errors} = DNSValidator.validate_record(attrs)
+      assert "CNAME records must contain a valid domain name (e.g., example.com)" in errors
+    end
+
+    test "rejects CNAME domains with paths" do
+      attrs = %{
+        "type" => "CNAME",
+        "name" => "test",
+        "content" => "example.com/path"
+      }
+
+      assert {:error, errors} = DNSValidator.validate_record(attrs)
+      assert "CNAME records must contain a valid domain name (e.g., example.com)" in errors
+    end
   end
 
   describe "can_modify_record?/1" do

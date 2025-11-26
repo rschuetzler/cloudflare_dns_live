@@ -52,7 +52,7 @@ defmodule CloudflareDnsWeb.DashboardLive do
 
       record ->
         if DNSValidator.can_modify_record?(record) do
-          case CloudflareClient.delete_dns_record(id) do
+          case CloudflareClient.delete_dns_record(id, %{name: record.name, type: record.type}) do
             :ok ->
               # Extract subdomain from full domain name for flash message
               subdomain = String.replace_suffix(record.name, ".#{zone_domain()}", "")
