@@ -81,7 +81,11 @@ defmodule CloudflareDnsWeb.RecordLive do
 
       {:error, errors} ->
         form = build_form(params, :validate, errors)
-        {:noreply, assign(socket, :form, form)}
+
+        {:noreply,
+         socket
+         |> assign(:form, form)
+         |> put_flash(:error, "Validation failed: #{Enum.join(errors, ", ")}")}
     end
   end
 
