@@ -189,7 +189,9 @@ defmodule CloudflareDns.DNSValidator do
     subdomain = String.replace_suffix(name, ".#{zone_domain()}", "")
 
     # Check if it's a valid subdomain format
-    String.match?(subdomain, ~r/^[a-z0-9]([a-z0-9\-]*[a-z0-9])?$/i)
+    # Allows starting with underscore (for DNS validation records like _acme-challenge)
+    # Allows letters, numbers, hyphens, underscores, and periods (for multi-level subdomains)
+    String.match?(subdomain, ~r/^[a-z0-9_]([a-z0-9\-\_\.]*[a-z0-9])?$/i)
   end
 
   defp valid_ipv4?(ip) do
