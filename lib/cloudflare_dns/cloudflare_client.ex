@@ -169,7 +169,11 @@ defmodule CloudflareDns.CloudflareClient do
     case Req.patch(url, headers: headers, json: body) do
       {:ok, %{status: 200, body: %{"success" => true, "result" => record}}} ->
         dns_record = map_to_dns_record(record)
-        Logger.info("DNS record updated: id=#{record_id}, type=#{type}, name=#{name}, content=#{content}")
+
+        Logger.info(
+          "DNS record updated: id=#{record_id}, type=#{type}, name=#{name}, content=#{content}"
+        )
+
         {:ok, dns_record}
 
       {:ok, %{status: status, body: body}} ->

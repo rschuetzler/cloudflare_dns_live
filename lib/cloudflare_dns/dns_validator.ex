@@ -4,20 +4,23 @@ defmodule CloudflareDns.DNSValidator do
   """
 
   alias CloudflareDns.CloudflareClient.DNSRecord
+  alias CloudflareDns.DNSCache
 
   @allowed_types ["A", "CNAME"]
   @forbidden_names ["www", "@", ""]
 
   @doc """
   Validates a DNS record for creation or update.
+  When updating a record, pass the existing_record_id to exclude it from duplicate checks.
   """
-  @spec validate_record(map()) :: {:ok, map()} | {:error, [String.t()]}
-  def validate_record(attrs) do
+  @spec validate_record(map(), String.t() | nil) :: {:ok, map()} | {:error, [String.t()]}
+  def validate_record(attrs, existing_record_id \\ nil) do
     errors = []
 
     errors = validate_type(attrs, errors)
     errors = validate_name(attrs, errors)
     errors = validate_content(attrs, errors)
+    errors = validate_unique_name(attrs, existing_record_id, errors)
 
     case errors do
       [] -> {:ok, sanitize_attrs(attrs)}
@@ -138,6 +141,46 @@ defmodule CloudflareDns.DNSValidator do
 
       true ->
         errors
+    end
+  end
+
+  defp validate_unique_name(attrs, existing_record_id, errors) do
+    name = Map.get(attrs, "name") || Map.get(attrs, :name) || ""
+    normalized_name = String.trim(String.downcase(name))
+
+    # Skip duplicate check if name is empty (will be caught by other validations)
+    if normalized_name == "" do
+      errors
+    else
+      # Construct the full domain name that will be used
+      full_name =
+        if String.ends_with?(normalized_name, ".#{zone_domain()}") do
+          normalized_name
+        else
+          "#{normalized_name}.#{zone_domain()}"
+        end
+
+      # Get all existing DNS records from cache
+      existing_records = DNSCache.get_all_records()
+
+      # Check if any record has the same name (case-insensitive)
+      duplicate_found =
+        Enum.any?(existing_records, fn record ->
+          # Normalize the record name for comparison
+          record_name = String.downcase(record.name)
+
+          # Check if names match, but exclude the current record being edited
+          record_name == full_name and record.id != existing_record_id
+        end)
+
+      if duplicate_found do
+        [
+          "A DNS record with the name '#{normalized_name}' already exists. Please choose a different name."
+          | errors
+        ]
+      else
+        errors
+      end
     end
   end
 

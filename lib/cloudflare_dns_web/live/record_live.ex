@@ -68,7 +68,14 @@ defmodule CloudflareDnsWeb.RecordLive do
   end
 
   def handle_event("save", %{"record" => params}, socket) do
-    case DNSValidator.validate_record(params) do
+    # Get existing record ID if we're editing
+    existing_record_id =
+      case socket.assigns.live_action do
+        :edit -> socket.assigns.record.id
+        _ -> nil
+      end
+
+    case DNSValidator.validate_record(params, existing_record_id) do
       {:ok, validated_params} ->
         save_record(socket, socket.assigns.live_action, validated_params)
 
@@ -321,6 +328,7 @@ defmodule CloudflareDnsWeb.RecordLive do
                   <ul class="mt-1 text-sm text-yellow-700 list-disc list-inside space-y-1">
                     <li>Cannot use "www" or root domain "@"</li>
                     <li>No wildcard domains (*.example)</li>
+                    <li>No duplicate subdomain names</li>
                     <li>Only A and CNAME records allowed</li>
                     <li>Protected records cannot be modified</li>
                   </ul>
