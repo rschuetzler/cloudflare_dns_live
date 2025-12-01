@@ -203,7 +203,8 @@ defmodule CloudflareDns.DNSValidator do
 
   defp valid_domain?(domain) do
     # Basic domain validation - could be enhanced
-    String.match?(domain, ~r/^[a-z0-9]([a-z0-9\-\.]*[a-z0-9])?$/i) and
+    # Allows underscores (for DNS validation records like _acme-challenge.example.com)
+    String.match?(domain, ~r/^[a-z0-9_]([a-z0-9\-\_\.]*[a-z0-9])?$/i) and
       String.contains?(domain, ".") and
       not String.starts_with?(domain, ".") and
       not String.ends_with?(domain, ".") and
